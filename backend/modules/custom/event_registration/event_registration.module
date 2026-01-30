@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Contains event_registration.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function event_registration_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.event_registration':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Custom module for event registration with email notifications and admin management.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Event Configuration') . '</dt>';
+      $output .= '<dd>' . t('Administrators can configure events at /admin/event-registration/event-config') . '</dd>';
+      $output .= '<dt>' . t('Event Registration') . '</dt>';
+      $output .= '<dd>' . t('Users can register for events at /event-registration/register') . '</dd>';
+      $output .= '<dt>' . t('Admin Listing') . '</dt>';
+      $output .= '<dd>' . t('View all registrations at /admin/event-registration/registrations') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+
+    default:
+      return '';
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function event_registration_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'registration_confirmation':
+      $message['subject'] = t('Event Registration Confirmation');
+      $message['body'][] = t('Dear @name,', ['@name' => $params['full_name']]);
+      $message['body'][] = '';
+      $message['body'][] = t('Thank you for registering for the following event:');
+      $message['body'][] = '';
+      $message['body'][] = t('Event Name: @event_name', ['@event_name' => $params['event_name']]);
+      $message['body'][] = t('Event Date: @event_date', ['@event_date' => $params['event_date']]);
+      $message['body'][] = t('Category: @category', ['@category' => $params['event_category']]);
+      $message['body'][] = '';
+      $message['body'][] = t('We look forward to seeing you at the event!');
+      $message['body'][] = '';
+      $message['body'][] = t('Best regards,');
+      $message['body'][] = t('Event Management Team');
+      break;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function event_registration_theme($existing, $type, $theme, $path) {
+  return [
+    'event_registration_admin_listing' => [
+      'variables' => [
+        'registrations' => [],
+        'total_count' => 0,
+      ],
+    ],
+  ];
+}
